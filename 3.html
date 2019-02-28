@@ -1,0 +1,70 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+	<meta charset="UTF-8">
+	<title>Document</title>
+	<style>
+	html, body {
+		height: 100%;
+	}
+	body {
+		margin: 0;
+	}
+	</style>
+</head>
+<body>
+	<canvas></canvas>
+	<script>
+	var canvas = document.querySelector('canvas');
+	var ctx = canvas.getContext('2d');
+	canvas.width = innerWidth;
+	canvas.height = innerHeight;
+
+	var vx = 4;
+
+	var g = 0.5;
+	function Raindrop() {
+		this.reset();
+	}
+
+	Raindrop.prototype.reset = function () {
+		this.x = canvas.width / 2;
+		this.y = canvas.height;
+		this.color = 'hsla(' + Math.random() * 360 + ',50%, 50%, 1)';
+		this.r = Math.random() * 2 + 1;
+		this.vx = Math.random() * vx - vx / 2;
+		this.vy = Math.random() * -10 - 20;
+	}
+
+	Raindrop.prototype.draw = function (ctx) {
+		this.vy += g;
+		this.x += this.vx;
+		this.y += this.vy;
+		if (this.x > canvas.width || this.x < 0 || this.y > canvas.height || this.y < 0) {
+			this.reset();
+		}
+		ctx.save();
+		ctx.fillStyle = this.color;
+		ctx.beginPath();
+		ctx.arc(this.x, this.y, this.r, 0, Math.PI * 2, false);
+		ctx.closePath();
+		ctx.fill();
+		ctx.restore();
+	}
+
+	var raindropNum = 500;
+	var raindrops = [];
+	for (var i = 0; i < raindropNum; i++) {
+		raindrops.push(new Raindrop());
+	}
+
+	(function loop() {
+		requestAnimationFrame(loop);
+		ctx.clearRect(0, 0, canvas.width, canvas.height);
+		raindrops.forEach(function (ball) {
+			ball.draw(ctx);
+		})
+	})();
+	</script>
+</body>
+</html>

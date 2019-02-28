@@ -1,0 +1,144 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <title>Title</title>
+</head>
+
+<body>
+    <div id="container">
+        <canvas id="canvas">Your Browser does not support Canvas, please upgrade</canvas>
+    </div>
+    <script>
+    var canvas = document.getElementById('canvas');
+    var ctx = canvas.getContext('2d');
+
+    var w = canvas.width = window.innerWidth-19;
+    var h = canvas.height = window.innerHeight-19;
+
+    function Ball(opt) {
+    	var settings = {
+    		x: 0,
+    		y: 0,
+    		color: 'red',
+    		r: 20,
+    		vx: 0,
+    		vy: 0,
+    		friction: 1,
+    		gravity: 0.3,
+    		bounce: -1
+    	}
+
+    	Object.assign(settings, opt);
+    	Object.keys(settings).map(x => {
+    		this[x] = settings[x];
+    	})
+    }
+
+    Ball.prototype.draw = function (ctx) {
+    	ctx.save();
+    	ctx.beginPath();
+    	ctx.fillStyle = this.color;
+    	ctx.arc(this.x, this.y, this.r, 0, Math.PI*2, false);
+    	ctx.fill();
+    	ctx.closePath();
+    	ctx.restore();
+    }
+
+    function getOffset(ele) {
+    	var offset  = {x: 0 , y: 0};
+    	while(ele){
+    		offset.x += ele.offsetLeft;
+    		offset.y += ele.offsetTop;
+    		ele = ele.offsetParent;
+    	}
+
+    	return offset
+    }
+
+    var canvasOffset = getOffset(canvas), mouseOffset;
+    var mouseDown = false;
+    var ballR = 30;
+    var dx, dy;
+    var oldY, odlX;
+    var ball = new Ball({bounce: -0.8, r: ballR,x: Math.random()*(w-ballR*2)+ballR, y: Math.random()*(h-ballR*2)-ballR, vx: Math.random()*20-10, vy: Math.random()*20-10});
+
+    function drag() {
+    	ball.x = mouseOffset.x - dx;
+    	ball.y = mouseOffset.y - dy;
+    	ctx.clearRect(0, 0, w, h);
+		ctx.strokeRect(0, 0, w, h);
+		ball.draw(ctx);
+    }
+
+    canvas.addEventListener("mousemove", function (e) {
+    	mouseOffset = {
+    		x: e.pageX - canvasOffset.x,
+    		y: e.pageY - canvasOffset.y
+    	}
+    });
+
+    canvas.addEventListener('mousedown', function () {
+    	dx = mouseOffset.x - ball.x;
+    	dy = mouseOffset.y - ball.y;
+    	var distance = Math.sqrt(dx*dx + dy*dy);
+    	if(distance < ball.r){
+    		mouseDown = true;
+    		canvas.addEventListener('mousemove', drag)
+    	}
+    })
+
+    canvas.addEventListener('mouseup', function () {
+    	if(mouseDown){
+    		var diffX = mouseOffset.x - dx - oldX;
+    		var diffY = mouseOffset.y - dy - oldY;
+    		var speed = Math.sqrt(diffX*diffX+diffY*diffY);
+    		var angle = Math.atan2(diffY, diffX);
+    		ball.vx = speed * Math.cos(angle);
+    		ball.vy = speed * Math.sin(angle);
+	    	mouseDown = false;
+	    	canvas.removeEventListener('mousemove', drag);
+    	}
+    })
+
+    ;(function start() {
+    	oldX = ball.x;
+    	oldY = ball.y;
+    	if(!mouseDown){
+    		ctx.clearRect(0, 0, w, h);
+    		ctx.strokeRect(0, 0, w, h);
+
+    		ball.vy += ball.gravity;
+    		ball.vy *= ball.friction;
+    		ball.vx *= ball.friction;
+    		ball.x += ball.vx;
+    		ball.y += ball.vy;
+
+    		if(ball.y <= ball.r){
+    			ball.y = ball.r;
+    			ball.vy *= ball.bounce;
+    		}
+
+    		if(ball.y >= h - ball.r){
+    			ball.y = h - ball.r;
+    			ball.vy *= ball.bounce;
+    		}
+
+    		if(ball.x <= ball.r){
+    			ball.x = ball.r;
+    			ball.vx *= ball.bounce;
+    		}
+
+    		if(ball.x >= w - ball.r){
+    			ball.x = w - ball.r;
+    			ball.vx *= ball.bounce;
+    		}
+
+    		ball.draw(ctx);
+    	}
+    	window.requestAnimationFrame(start)
+    })();
+    </script>
+</body>
+
+</html>

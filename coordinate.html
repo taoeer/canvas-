@@ -1,0 +1,108 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <title>Title</title>
+</head>
+
+<body>
+    <div id="container">
+        <canvas id="canvas">Your Browser does not support Canvas, please upgrade</canvas>
+    </div>
+    <script>
+    var canvas = document.getElementById('canvas');
+    var ctx = canvas.getContext('2d');
+
+    var w = canvas.width = 500;
+    var h = canvas.height = 500;
+
+    function Ball(opt) {
+        var settings = {
+            x: 0,
+            y: 0,
+            color: 'hsla('+Math.random()*360+',100%,50%,1)',
+            r: Math.random()*5+5,
+            vx: 0,
+            vr: Math.random()*5,
+            vy: 0,
+            friction: 1,
+            gravity: 0.3,
+            bounce: -1
+        }
+
+        Object.assign(settings, opt);
+        Object.keys(settings).map(x => {
+            this[x] = settings[x];
+        })
+    }
+
+    Ball.prototype.draw = function (ctx) {
+        ctx.save();
+        ctx.beginPath();
+        ctx.fillStyle = this.color;
+        ctx.arc(this.x, this.y, this.r, 0, Math.PI*2, false);
+        ctx.fill();
+        ctx.closePath();
+        ctx.restore();
+    }
+
+    function getOffset(ele) {
+        var offset  = {x: 0 , y: 0};
+        while(ele){
+            offset.x += ele.offsetLeft;
+            offset.y += ele.offsetTop;
+            ele = ele.offsetParent;
+        }
+
+        return offset;
+    }
+
+    var balls = [], ballsNum = 50,centerX = w/2 ,centerY = h/2 , angle = 1;
+
+    for(var i =0 ;i<ballsNum; i++){
+        var ball = new Ball();
+
+        ball.x =  Math.random()*w;
+        ball.y = Math.random()*h;
+
+        balls.push(ball);
+    }
+
+    function drawBall() {
+        for(var j = 0 ; j < balls.length ; j++){
+            var ball= balls[j];
+            var dx = ball.x - centerX;
+            var dy = ball.y - centerY;
+
+            var radius = Math.sqrt(dx*dx+dy*dy);
+
+            ctx.save();
+            ctx.beginPath();
+            ctx.strokeStyle = "rgba(255,255,255,0.3)";
+            ctx.arc(centerX, centerY, radius, 0, 2*Math.PI, false);
+            ctx.closePath();
+            ctx.stroke();
+            ctx.restore();
+
+            var newX = dx*Math.cos(ball.vr*Math.PI/180)-dy*Math.sin(ball.vr*Math.PI/180);
+            var newY = dy*Math.cos(ball.vr*Math.PI/180)+dx*Math.sin(ball.vr*Math.PI/180);
+
+            ball.x = centerX + newX;
+            ball.y = centerY + newY;
+            ball.draw(ctx);
+        }
+    }
+    
+
+    ;(function start() {
+        ctx.clearRect(0, 0, w, h);
+        ctx.fillRect(0, 0, w, h);
+
+        drawBall();
+        
+        window.requestAnimationFrame(start);
+    })();
+    </script>
+</body>
+
+</html>

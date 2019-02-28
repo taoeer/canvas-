@@ -1,0 +1,107 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <title>Title</title>
+</head>
+
+<body>
+    <div id="container">
+        <canvas id="ID">Your Browser does not support Canvas, please upgrade</canvas>
+    </div>
+    <script>
+    (function() {
+
+        var canvas = document.getElementById('ID');
+        var ctx = canvas.getContext('2d');
+
+        canvas.width = 1000;
+        canvas.height = 500;
+        ctx.strokeRect(0, 0, 1000, 500);
+        
+
+        function roundRect(ctx,x,y,w,h,radius) {
+            ctx.save();
+            ctx.beginPath();
+            ctx.moveTo(x+radius, y);
+            ctx.lineTo(x+w-radius, y);
+            ctx.quadraticCurveTo(x+w, y, x+w, y+radius);
+            ctx.lineTo(x+w, y+h-radius);
+            ctx.quadraticCurveTo(x+w, y+h, x+w-radius,y+h);
+            ctx.lineTo(x+radius, y+h);
+            ctx.quadraticCurveTo(x, y+h, x, y+h-radius);
+            ctx.lineTo(x, y+radius);
+            ctx.quadraticCurveTo(x, y, x+radius, y);
+            ctx.stroke();
+            ctx.closePath();
+            ctx.restore();
+        }
+
+        function Person(opt) {
+            this.oldGap = this.gap = opt.gap || 40;
+            this.r = opt.r || 50;
+            this.x = opt.x || 0;
+            this.y = opt.y || 0;
+            this.color = opt.color || "red";
+            this.dx = 1 ; 
+            this.dy = 1
+        }
+
+        Person.prototype.update = function () {
+            this.x += 2*this.dx;
+            this.y+=3*this.dy;
+            if(this.x>canvas.width-this.r || this.x<this.r){this.dx  = -1*this.dx}
+            if(this.y>canvas.height-this.r || this.y<this.r){this.dy  = -1*this.dy}
+        }
+        Person.prototype.drawEye = function (ctx) {
+            ctx.save();
+            ctx.beginPath();
+            ctx.fillStyle = "white";
+            ctx.arc(this.x+10, this.y-25, 5, 0, 2*Math.PI, false);
+            ctx.closePath();
+            ctx.fill();
+            ctx.restore();
+        }
+
+        Person.prototype.draw = function (ctx) {
+            ctx.save();
+            ctx.beginPath();
+            ctx.fillStyle = this.color;
+            ctx.arc(this.x, this.y, this.r, this.gap/2*Math.PI/180, this.gap == 0 ?2*Math.PI:this.gap/-2*Math.PI/180, false);
+            ctx.lineTo(this.x, this.y);
+            ctx.closePath();
+            ctx.fill();
+            ctx.restore();
+            this.drawEye(ctx);
+        }
+        
+        var  p = new Person({x:300,y:300});
+        p.gap = 0 ;
+        p.draw(ctx);
+
+        var flag = 0;
+        (function start() {
+            ctx.clearRect(0, 0, 1000, 500);
+            ctx.strokeRect(0, 0, 1000, 500);
+            p.draw(ctx);
+            p.update();
+            if(flag ==0 ){
+                p.gap-=5;
+            }else{
+                p.gap+=5;
+            }
+
+            if(p.gap<=0){
+                p.gap = 0 ;
+                flag = -1;
+            }else if(p.gap>=p.oldGap){
+                p.gap = p.oldGap;
+                flag = 0;
+            }
+            window.requestAnimationFrame(start)
+        })()
+    }());
+    </script>
+</body>
+
+</html>

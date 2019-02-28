@@ -1,0 +1,59 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+	<meta charset="UTF-8">
+	<title>Document</title>
+	<style>
+	html, body {
+		height: 100%;
+	}
+	body {
+		margin: 0;
+	}
+	</style>
+</head>
+<body>
+	<canvas></canvas>
+	<script src="lib/ball.js"></script>
+	<script>
+	var canvas = document.querySelector('canvas');
+	var ctx = canvas.getContext('2d');
+	canvas.width = innerWidth;
+	canvas.height = innerHeight;
+
+	var ball = new Ball();
+	var spring = 0.03;
+	var friction = 0.9;
+	var handles = [];
+	for (var i = 0 ; i < 5; i++) {
+		handles.push({x: Math.random() * canvas.width, y: Math.random() * canvas.height});
+	} 
+
+	(function loop() {
+		requestAnimationFrame(loop);
+		ctx.clearRect(0, 0, canvas.width, canvas.height);
+		handles.forEach(function (handle) {
+			ctx.save();
+			ctx.beginPath();
+			ctx.arc(handle.x, handle.y, 10, 0, Math.PI * 2, false);
+			ctx.moveTo(handle.x, handle.y);
+			ctx.lineTo(ball.x, ball.y);
+			ctx.stroke();
+			ctx.closePath();
+			ctx.fill();
+			ctx.restore();
+
+			var dx = handle.x - ball.x;
+			var dy = handle.y  -ball.y;
+			ball.vx += dx * spring;
+			ball.vy += dy * spring;
+		});
+		ball.vx *= friction;
+		ball.vy *= friction;
+		ball.x += ball.vx;
+		ball.y += ball.vy;
+		ball.draw(ctx);
+	})();
+	</script>
+</body>
+</html>

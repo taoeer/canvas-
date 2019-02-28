@@ -1,0 +1,186 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <title>Document</title>
+    <style type="text/css">
+    * {
+        padding: 0;
+        margin: 0;
+    }
+    
+    html,
+    body {
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        height: 100%;
+        width: 100%;
+    }
+    </style>
+</head>
+
+<body>
+    <canvas width="500" height="500"></canvas>
+    <script type="text/javascript">
+    var canvas = document.getElementsByTagName("canvas")[0];
+    var c = canvas.getContext("2d");
+
+    function drawClock() {
+        c.clearRect(0, 0, canvas.width, canvas.height);
+
+        c.fillStyle = "black";
+
+        c.strokeStyle = "red";
+        c.lineWidth = 10;
+        c.beginPath();
+        c.arc(250, 250, 200, 0, 360);
+        c.stroke();
+        c.closePath();
+
+        c.strokeStyle = "green";
+        c.lineWidth = 10;
+        c.beginPath();
+        c.arc(250, 250, 5, 0, 360);
+        c.stroke();
+        c.closePath();
+
+        for (var i = 0; i < 12; i++) {
+            c.lineWidth = 7;
+            c.strokeStyle = 'green'
+            c.save();
+            c.translate(250, 250);
+            c.rotate(30 * i * Math.PI / 180);
+            c.beginPath();
+            c.moveTo(175, 0);
+            c.lineTo(195, 0);
+            c.stroke();
+            c.closePath();
+            c.restore();
+        }
+
+        for (var i = 1; i <= 12; i++) {
+            c.save();
+            c.font = "20px 微软雅黑";
+            c.textBaseline = "middle";
+            c.textAlign = "center";
+            c.lineWidth = 1;
+            c.fillStyle = "#555";
+            var r = 160;
+            c.fillText(i, 250 + r * Math.sin(30 * i * Math.PI / 180), 250 - r * Math.cos(30 * i * Math.PI / 180));
+            c.restore();
+        }
+
+        for (var i = 0; i < 60; i++) {
+            c.lineWidth = 3;
+            c.strokeStyle = 'green'
+            c.save();
+            c.translate(250, 250);
+            c.rotate(6 * i * Math.PI / 180);
+            c.beginPath();
+            c.moveTo(185, 0);
+            c.lineTo(195, 0);
+            c.stroke();
+            c.closePath();
+            c.restore();
+        }
+
+        var now = new Date();
+        var sec = now.getSeconds();
+        var min = now.getMinutes();
+        var hour = now.getHours();
+        var Millisec = now.getMilliseconds()
+        hour += (min / 60);
+        min += (sec / 60);
+        sec += Millisec / 1000;
+
+        //显示时间
+        c.font = "20px 微软雅黑";
+        c.textBaseline = "middle";
+        c.textAlign = "center";
+        c.lineWidth = 2;
+        c.fillStyle = "#555";
+        hours = now.getHours();
+        mins = now.getMinutes();
+        secs = now.getSeconds()
+        var str = (hours < 10 ? ("0" + hours) : hours) + ":" + (mins < 10 ? ("0" + mins) : mins)+":"+(secs<10?("0"+secs):secs);
+        c.fillText(str, 250, 330);
+
+        //中国制造
+        c.font = "16px 微软雅黑";
+        c.textBaseline = "middle";
+        c.textAlign = "center";
+        c.lineWidth = 1;
+        c.fillText("Made In China", 250,360);
+
+        //-----------------------------时针-----------------------------
+        c.save();
+        c.lineWidth = 7;
+        c.strokeStyle = "#00FFFF";
+        c.lineCap="round"
+        c.translate(250, 250);
+        c.rotate(hour * 30 * Math.PI / 180); //每小时旋转30度
+        c.beginPath();
+        c.moveTo(0, -130);
+        c.lineTo(0, 20);
+        c.stroke();
+        c.closePath();
+        c.restore();
+
+        //-----------------------------分针-----------------------------
+        c.save();
+        c.lineWidth = 5;
+        c.strokeStyle = "blue";
+        c.lineCap="round"
+        c.translate(250, 250);
+        c.rotate(min * 6 * Math.PI / 180); //每分钟旋转6度
+        c.beginPath();
+        c.moveTo(0, -150);
+        c.lineTo(0, 30);
+        c.stroke();
+        c.closePath();
+        c.restore();
+
+        //-----------------------------秒针-----------------------------
+        c.save();
+        c.lineWidth = 3;
+        c.strokeStyle = "#FF0000";
+        c.lineCap="round"
+        c.translate(250, 250);
+        c.rotate(sec * 6 * Math.PI / 180); //每秒旋转6度
+        c.beginPath();
+        c.moveTo(0, -175);
+        c.lineTo(0, 40);
+        c.stroke();
+        c.closePath();
+
+        //美化表盘，画中间的小圆
+        c.beginPath();
+        c.arc(0, 0, 7, 0, 360);
+        c.fillStyle = "#FFFF00";
+        c.fill();
+        c.strokeStyle = "#FF0000";
+        c.stroke();
+        c.closePath();
+
+        //秒针上的小圆
+        c.beginPath();
+        c.arc(0, -140, 7, 0, 360);
+        c.fillStyle = "#FFFF00";
+        c.fill();
+        c.stroke();
+        c.closePath();
+        c.restore();
+    }
+
+    drawClock();
+
+    window.requestAnimationFrame(function() {
+        drawClock();
+        requestAnimationFrame(arguments.callee)
+    });
+    </script>
+</body>
+
+</html>

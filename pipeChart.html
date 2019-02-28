@@ -1,0 +1,114 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+	<meta charset="UTF-8">
+	<title>Document</title>
+</head>
+<body>
+	<canvas></canvas>
+	<script>
+	var canvas = document.getElementsByTagName("canvas")[0];
+	var w = canvas.height = 800;
+	var h = canvas.width = 800;
+	var ctx = canvas.getContext("2d");
+
+	function PipeChart(opt) {
+		this.data = opt.data;
+		this.x = opt.x;
+		this.y = opt.y;
+		this.r = opt.r;
+		this.labels = opt.labels || this.getLabels();
+		this.colors = opt.colors || this.getColors();
+	}
+
+	PipeChart.prototype.getColors = function () {
+		var angleSection = 360/this.data.length;
+		var colors = [];
+		for(var i = 0 ; i < this.data.length ; i ++){
+			colors.push("hsla("+i*angleSection+",100%,50%,1)");
+		}
+		return colors;
+	}
+
+	PipeChart.prototype.getTotal = function () {
+		return data.reduce(function (x,y) {
+			return x+y;
+		})
+	}
+
+	PipeChart.prototype.getAngels = function () {
+		var total = this.getTotal();
+		return data.map(function (x) {
+			return x/total*360;
+		})
+	}
+
+	PipeChart.prototype.getLabels = function () {
+		if(!this.lables);
+		var labelsArr = [];
+		for(var i = 0 ; i <this.data.length ; i++){
+			labelsArr.push(i+1);
+		}
+		return labelsArr
+	}
+
+	PipeChart.prototype.drawPipeOutline = function (c) {
+		c.save();
+		c.beginPath();
+		c.strokeStyle = "#eee";
+		c.arc(this.x,this.y,this.r,0,2*Math.PI,false);
+		c.closePath();
+		c.stroke();
+		c.restore();
+	}
+
+	PipeChart.prototype.draw = function (c) {
+		var angles = this.getAngels();
+		var nowRotate = 0 ;
+		var rotate;
+		c.save();
+
+		for(var i = 0 ; i<this.data.length ; i++){
+			rotate = angles[i];
+			c.beginPath();
+			c.fillStyle = this.colors[i];
+			c.moveTo(this.x, this.y);
+			c.arc(this.x,this.y,this.r,nowRotate*Math.PI/180,(nowRotate+rotate)*Math.PI/180,false);
+			c.closePath();
+			c.fill();
+			c.fillStyle = "#fff";
+			c.font = "16px 微软雅黑";
+			c.textBaseline = 'middle';
+			c.textAlign = 'center';
+			c.fillText(this.labels[i],this.x+this.r/1.5*Math.cos((nowRotate+rotate/2)*Math.PI/180),this.y+this.r/1.5*Math.sin((nowRotate+rotate/2)*Math.PI/180));
+			nowRotate += rotate;
+		}
+		
+		c.restore();
+	}
+
+	PipeChart.prototype.drawLabels = function (c) {
+		var x = 110;
+		var y = 10;
+		var angles = this.getAngels();
+		c.save();
+		for(var i = 0 ; i<this.data.length ; i++){
+			c.beginPath();
+			c.fillStyle = this.colors[i];
+			c.fillRect(x,y+i*25,1*this.getAngels()[i],20);
+			c.font = "14px 微软雅黑";
+			c.textBaseline = "top";
+			c.fillText(this.labels[i],x+10+1*this.getAngels()[i],y+i*25+(20-14)/2)
+			c.closePath();
+		}
+		c.restore();
+	}
+
+	var data = [1,20,3,4];
+	var pipeChart = new PipeChart({data:data,x:50,y:50,r:50,labels:"abcd".split("")});
+	pipeChart.drawPipeOutline(ctx);
+	pipeChart.draw(ctx);
+	pipeChart.drawLabels(ctx);
+	</script>
+</body>
+</html>

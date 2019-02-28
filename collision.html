@@ -1,0 +1,136 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <title>Document</title>
+</head>
+
+<body>
+    <canvas id="canvas"></canvas>
+    <script>
+    var canvas = document.querySelector("#canvas");
+    var ctx = canvas.getContext("2d");
+    var w = canvas.width = 800;
+    var h = canvas.height = 600;
+
+    function Ball(opt) {
+    	var settings = {
+    		x: 0,
+    		y: 0,
+    		color: 'red',
+    		r: 20,
+    		vx: 0,
+    		vy: 0,
+    		friction: 1,
+    		gravity: 0.3,
+    		bounce: -1
+    	}
+
+    	Object.assign(settings, opt);
+    	Object.keys(settings).map(x => {
+    		this[x] = settings[x];
+    	})
+    }
+
+    Ball.prototype.draw = function (ctx) {
+    	ctx.save();
+    	ctx.beginPath();
+    	ctx.fillStyle = this.color;
+    	ctx.arc(this.x, this.y, this.r, 0, Math.PI*2, false);
+    	ctx.fill();
+    	ctx.closePath();
+    	ctx.restore();
+    }
+
+    function getOffset(ele) {
+    	var offset  = {x: 0 , y: 0};
+    	while(ele){
+    		offset.x += ele.offsetLeft;
+    		offset.y += ele.offsetTop;
+    		ele = ele.offsetParent;
+    	}
+
+    	return offset
+    }
+
+    var canvasOffset = getOffset(canvas);
+    var centerBox = new Ball({x:w/2,y:h/2,r:80});
+    var balls = [], ballsNum = 10;
+    var bounce = -1 , spring = 0.02;
+
+    function generateBalls() {
+    	for(var i = 0 ; i < ballsNum ; i ++){
+    		var ball = new Ball({r:Math.random()*20+5});
+    		ball.x = Math.random()*(w-ball.r)+ball.r;
+    		ball.y = Math.random()*(h-ball.r)+ball.r;
+    		ball.vx = Math.random()*10-5;
+    		ball.vy = Math.random()*10-5;
+    		ball.color = "hsla(" + Math.random()*360 + ",100%,50%,1)";
+
+    		balls.push(ball);
+    	}
+    }
+
+    function centerBallCollisionCheck(ball) {
+    	var dx = ball.x - centerBox.x;
+    	var dy = ball.y - centerBox.y;
+    	var distance = Math.sqrt(dx*dx+dy*dy);
+    	var min_dist = centerBox.r  + ball.r;
+
+    	if(distance < min_dist){
+           var angle = Math.atan2(dy, dx);
+           var targetX = centerBox.x + Math.cos(angle)*min_dist,
+               targetY = centerBox.y + Math.sin(angle)*min_dist;
+           ball.vx += (targetX - ball.x)*spring;
+           ball.vy += (targetY - ball.y)*spring;
+       }
+    }
+
+    function boundaryCheck(ball) {
+    	if(ball.x < ball.r){
+    		ball.x = ball.r;
+    		ball.vx *= bounce;
+    	}
+
+    	if(ball.x > w - ball.r){
+    		ball.x = w - ball.r;
+    		ball.vx *= bounce;
+    	}
+
+    	if(ball.y < ball.r){
+    		ball.y = ball.r;
+    		ball.vy *= bounce;
+    	}
+
+    	if(ball.y >  h - ball.r){
+    		ball.y = h - ball.r;
+    		ball.vy *= bounce;
+    	}
+    }
+
+    function drawBalls() {
+    	for(var ballIndex = 0 ; ballIndex < balls.length ; ballIndex ++){
+    		var ball = balls[ballIndex];
+    		ball.x += ball.vx;
+    		ball.y += ball.vy;
+
+    		boundaryCheck(ball);
+    		centerBallCollisionCheck(ball);
+
+    		ball.draw(ctx);
+    	}
+    }
+
+    generateBalls();
+
+    ;(function start() {
+    	ctx.clearRect(0, 0, w, h);
+    	ctx.strokeRect(0, 0, w, h);
+    	centerBox.draw(ctx);
+    	drawBalls();
+    	window.requestAnimationFrame(start);
+    })();
+    </script>
+</body>
+</html>

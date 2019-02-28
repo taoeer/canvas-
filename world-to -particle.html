@@ -1,0 +1,134 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <meta http-equiv="Content-Type" content="text/html;charset=UTF-8">
+    <title>Title</title>
+</head>
+
+<body>
+    <div id="container">
+        <canvas id="canvas">Your Browser does not support Canvas, please upgrade</canvas>
+    </div>
+    <input id="name" type="text" placeholder="请输入文字">
+    <script>
+    var canvas = document.getElementById('canvas');
+    var ctx = canvas.getContext('2d');
+
+    var w = canvas.width = 500;
+    var h = canvas.height = 500;
+
+    var nameInput = document.getElementById('name')
+
+    nameInput.addEventListener("keyup", function(e) {
+        if (e.keyCode == 13) {
+            getShape(e.target.value);
+        }
+    })
+
+
+    colors = [
+        '#f44336', '#e91e63', '#9c27b0', '#673ab7', '#3f51b5',
+        '#2196f3', '#03a9f4', '#00bcd4', '#009688', '#4CAF50',
+        '#8BC34A', '#CDDC39', '#FFEB3B', '#FFC107', '#FF9800',
+        '#FF5722'
+    ];
+
+    function Circle(opt) {
+        var settings = {
+            x: Math.random() * w,
+            y: Math.random() * h,
+            color: colors[Math.floor(Math.random() * 16)],
+            r: 5,
+            angle: 0,
+            speed: 5
+        }
+
+        Object.assign(settings, opt);
+
+        Object.keys(settings).map(x => {
+            this[x] = settings[x];
+        })
+    }
+
+    Circle.prototype.draw = function(ctx) {
+        ctx.save();
+        ctx.beginPath();
+        ctx.fillStyle = this.color;
+        ctx.arc(this.x, this.y, this.r, 0, 2 * Math.PI, false);
+        ctx.fill();
+        ctx.closePath();
+        ctx.restore();
+    }
+
+    Circle.prototype.update = function() {
+        var dx = this.x-this.tX;
+        var dy = this.y - this.tY;
+
+        var distance  = Math.sqrt(dx*dx+dy*dy);
+
+        if(distance < 5 ){
+            return;
+        }
+
+        this.angle = Math.atan2(this.tY - this.y, this.tX - this.x);
+        this.vx = Math.cos(this.angle) * this.speed;
+        this.vy = Math.sin(this.angle) * this.speed;
+        this.x += this.vx;
+        this.y += this.vy;
+    }
+
+    var circles = [];
+
+    function getShape(txt) {
+        circles = [];
+        ctx.clearRect(0, 0, w, h);
+        ctx.font = "100px Microsoft Yahei";
+        ctx.textBaseline = "middle";
+        ctx.textAlign = "center";
+        ctx.fillText(txt || "hello", w / 2, h / 2);
+
+        var imgData = ctx.getImageData(0, 0, w, h);
+        var imgBuf = new Uint32Array(imgData.data.buffer);
+
+        for (var i = 0; i < h; i += 6) {
+            for (var j = 0; j < w; j +=6) {
+                if (imgBuf[i * w + j]) {
+                    circles.push(new Circle({
+                        tX: j,
+                        tY: i
+                    }))
+                }
+            }
+        }
+    }
+
+    getShape();
+
+
+
+    function draw() {
+        for (var k = 0; k < circles.length; k++) {
+            circles[k].draw(ctx);
+        }
+    }
+
+    function update() {
+        for (var k = 0; k < circles.length; k++) {
+            circles[k].update();
+        }
+    }
+
+    ;
+    (function start() {
+
+        ctx.clearRect(0, 0, w, h);
+        ctx.fillRect(0, 0, w, h);
+        update();
+        draw();
+        window.requestAnimationFrame(start)
+    })();
+    </script>
+</body>
+
+</html>

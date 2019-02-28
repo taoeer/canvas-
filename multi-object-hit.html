@@ -1,0 +1,142 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <title>Document</title>
+</head>
+
+<body>
+    <canvas id="canvas"></canvas>
+    <script>
+    var canvas = document.querySelector("#canvas");
+    var ctx = canvas.getContext("2d");
+    var w = canvas.width = 800;
+    var h = canvas.height = 600;
+
+    function Ball(opt) {
+        var settings = {
+            x: 0,
+            y: 0,
+            color: 'red',
+            r: 20,
+            vx: 0,
+            vy: 0,
+            friction: 1,
+            gravity: 0.3,
+            bounce: -1
+        }
+
+        Object.assign(settings, opt);
+        Object.keys(settings).map(x => {
+            this[x] = settings[x];
+        })
+    }
+
+    Ball.prototype.draw = function(ctx) {
+        ctx.save();
+        ctx.beginPath();
+        ctx.fillStyle = this.color;
+        ctx.arc(this.x, this.y, this.r, 0, Math.PI * 2, false);
+        ctx.fill();
+        ctx.closePath();
+        ctx.restore();
+    }
+
+    function getOffset(ele) {
+        var offset = {
+            x: 0,
+            y: 0
+        };
+        while (ele) {
+            offset.x += ele.offsetLeft;
+            offset.y += ele.offsetTop;
+            ele = ele.offsetParent;
+        }
+
+        return offset
+    }
+
+    var canvasOffset = getOffset(canvas);
+    var balls = [],
+        ballsNum = 10;
+    var bounce = -1;
+
+    for (var i = 0; i < ballsNum; i++) {
+        var ball = new Ball({
+            r: Math.random() * 20 + 10,
+            color: "hsla(" + Math.random() * 360 + ",100%,50%,1)",
+            vx: Math.random() * 10 - 5,
+            vy: Math.random() * 10 - 5
+        });
+        ball.x = Math.random() * (w - ball.r) + ball.r;
+        ball.y = Math.random() * (h - ball.r) + ball.r;
+
+        balls.push(ball);
+    }
+
+    function boundaryCheck(ball) {
+        if (ball.x < ball.r) {
+            ball.x = ball.r;
+            ball.vx *= bounce;
+        }
+
+        if (ball.x > w - ball.r) {
+            ball.x = w - ball.r;
+            ball.vx *= bounce;
+        }
+
+        if (ball.y < ball.r) {
+            ball.y = ball.r;
+            ball.vy *= bounce;
+        }
+
+        if (ball.y > h - ball.r) {
+            ball.y = h - ball.r;
+            ball.vy *= bounce;
+        }
+    }
+
+    function checkCollision() {
+        balls.forEach(function(ballA, i) {
+            for (var ballB, j = i + 1; j < balls.length; j++) {
+                ballB = balls[j];
+                dx = ballB.x - ballA.x;
+                dy = ballB.y - ballA.y;
+                dist = Math.sqrt(dx * dx + dy * dy);
+                min_dist = ballA.r + ballB.r;
+
+                if (dist < min_dist) {
+                    ballA.vx *= bounce;
+                    ballA.vy *= bounce;
+                    ballB.vx *= bounce;
+                    ballB.vy *= bounce;
+                }
+            }
+        });
+    }
+
+    function drawBall() {
+        for (i = 0; i < balls.length; i++) {
+            var ball = balls[i];
+            boundaryCheck(ball);
+            
+            ball.x += ball.vx;
+            ball.y += ball.vy;
+            ball.draw(ctx);
+        }
+
+    }
+
+    ;
+    (function start() {
+        ctx.clearRect(0, 0, w, h);
+        ctx.strokeRect(0, 0, w, h);
+        checkCollision();
+        drawBall();
+        window.requestAnimationFrame(start)
+    })();
+    </script>
+</body>
+
+</html>

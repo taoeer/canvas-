@@ -1,0 +1,103 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <title>Document</title>
+</head>
+
+<body>
+    <canvas id="canvas"></canvas>
+    <p id="log"></p>
+    <script>
+    var canvas = document.querySelector("#canvas");
+    var log = document.querySelector("#log");
+
+    var ctx = canvas.getContext("2d");
+    var w = canvas.width = 800;
+    var h = canvas.height = 600;
+
+    function Ball(opt) {
+    	var settings = {
+    		x: 0,
+    		y: 0,
+    		color: 'red',
+    		r: 20,
+    		vx: 0,
+    		vy: 0,
+    		friction: 1,
+    		gravity: 0.3,
+    		bounce: -1
+    	}
+
+    	Object.assign(settings, opt);
+    	Object.keys(settings).map(x => {
+    		this[x] = settings[x];
+    	})
+    }
+
+    Ball.prototype.draw = function (ctx) {
+    	ctx.save();
+    	ctx.beginPath();
+    	ctx.fillStyle = this.color;
+    	ctx.arc(this.x, this.y, this.r, 0, Math.PI*2, false);
+    	ctx.fill();
+    	ctx.rect(this.x - this.r, this.y - this.r, this.r*2, this.r*2);
+    	ctx.stroke();
+    	ctx.closePath();
+    	ctx.restore();
+    }
+
+    function getOffset(ele) {
+    	var offset  = {x: 0 , y: 0};
+    	while(ele){
+    		offset.x += ele.offsetLeft;
+    		offset.y += ele.offsetTop;
+    		ele = ele.offsetParent;
+    	}
+
+    	return offset
+    }
+
+    function checkBoom() {
+    	return !(ball1.x + ball1.r < ball2.x - ball2.r ||
+    			 ball1.y + ball1.r < ball2.y - ball2.r ||
+    			 ball2.x + ball2.r < ball1.x - ball1.r ||
+    			 ball2.y + ball2.r < ball1.y - ball1.r);
+    }
+
+    function fillText(txt) {
+    	ctx.save();
+    	ctx.font = "20px 微软雅黑";
+    	ctx.textBaseline = "middle";
+    	ctx.textAlign = "center";
+    	ctx.fillText(txt, w/2, 50);
+    	ctx.restore();
+    }
+
+    var ball1 = new Ball({r:80,x:w/2-20,y:h/2-20});
+    var ball2 = new Ball({r:80,x:80,y:h/2-40});
+    var canvasOffset = getOffset(canvas);
+
+    canvas.addEventListener('mousemove', function (e) {
+    	ball2.x = e.pageX - canvasOffset.x;
+    	ball2.y = e.pageY - canvasOffset.y;
+    })
+
+    ;(function start () {
+    	ctx.clearRect(0, 0, w, h);
+    	ctx.strokeRect(0, 0, w, h);
+
+    	ball1.draw(ctx);
+    	ball2.draw(ctx);
+    	window.requestAnimationFrame(start);
+
+    	if(!checkBoom()){
+    		fillText("没有撞上");
+    	}else{
+    		fillText("撞上了");
+    	}
+    })();
+    </script>
+</body>
+</html>

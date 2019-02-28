@@ -1,0 +1,58 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Document</title>
+  <style>
+    canvas{
+      border: 1px #eee solid;
+    }
+  </style>
+</head>
+<body>
+  <canvas></canvas>
+  <script>
+    var canvas = document.getElementsByTagName("canvas")[0];
+    var c = canvas.getContext("2d");
+    var w = canvas.width = 500;
+    var h = canvas.height = 500;
+
+    // function rect(opt) {
+    //   this.x = opt.x || 0;
+    //   this.y = opt.y || 0;
+    //   this.color = opt.color || 'red';
+    //   this.width = opt.width || 300;
+    //   this.height = opt.height;
+    // }
+
+    // rect.prototype.draw = function (c) {
+    //     c.save();
+    //     c.beginPath();
+    //     c.strokeStyle = this.color;
+    //     c.strokeRect(this.x,this.y,this.width,this.height);
+    //     c.closePath();
+    //     c.restore();
+    // }
+
+    // rect.prototype.update = function (color) {
+    //   this.color = color;
+    // }
+
+    // var  r = new rect({x:10,y:10,width:100,height:100})
+    // r.draw(c);
+
+    c.rect(10,10,300,400)
+    canvas.addEventListener("mousemove",function (e) {
+        if(c.isPointInPath(e.pageX,e.pageY)){
+            c.lineWidth = 10
+            c.strokeStyle = 'red';
+            c.stroke();
+        }else{
+          c.lineWidth = 10
+          c.strokeStyle = 'blue';
+          c.stroke();
+        }
+    })
+  </script>
+</body>
+</html>

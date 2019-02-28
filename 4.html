@@ -1,0 +1,70 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+	<meta charset="UTF-8">
+	<title>Document</title>
+	<style>
+	html, body {
+		height: 100%;
+	}
+	body {
+		margin: 0;
+	}
+	</style>
+</head>
+<body>
+	<canvas></canvas>
+	<script src="lib/ball.js"></script>
+	<script src="lib/util.js"></script>
+	<script>
+	var canvas = document.querySelector('canvas');
+	var ctx = canvas.getContext('2d');
+	canvas.width = innerWidth;
+	canvas.height = innerHeight;
+
+	var spring = 0.03;
+	var fraction = 0.8;
+	var balls = [];
+	var ballNum = 10;
+	var mouse = util.captureMouse(canvas);
+	var g = 2;
+
+	for (var i = 0 ; i < ballNum; i ++) {
+		balls.push(new Ball());
+	}
+
+	function move (ball, x,y ) {
+		var dx = x - ball.x;
+		var dy = y - ball.y;
+		var ax = dx * spring;
+		var ay = dy * spring;
+		ball.vx += ax;
+		ball.vy += ay;
+		ball.vy += g;
+		ball.vx *= fraction;
+		ball.vy *= fraction;
+		ball.x += ball.vx;
+		ball.y += ball.vy;
+		ctx.stroke();
+		ball.draw(ctx);
+	}
+
+	(function loop() {
+		requestAnimationFrame(loop);
+		ctx.clearRect(0, 0, canvas.width, canvas.height);
+		ctx.beginPath();
+		balls.forEach(function (ball, index) {
+			if (index == 0) {
+				move(ball, mouse.x, mouse.y);
+				ctx.moveTo(mouse.x, mouse.y);
+			} else {
+				move(ball, balls[index - 1].x, balls[index - 1].y)
+				ctx.moveTo(balls[index - 1].x, balls[index - 1].y);
+			}
+			ctx.lineTo(ball.x, ball.y);
+		});
+
+	})();
+	</script>
+</body>
+</html>

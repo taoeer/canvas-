@@ -1,0 +1,95 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <title>Title</title>
+</head>
+
+<body>
+    <div id="container">
+        <canvas id="canvas">Your Browser does not support Canvas, please upgrade</canvas>
+    </div>
+    <script>
+    var canvas = document.getElementById('canvas');
+    var ctx = canvas.getContext('2d');
+
+    var w = canvas.width = window.innerWidth -20 ;
+    var h = canvas.height = window.innerHeight - 20;
+
+    function Ball(opt) {
+    	var settings = {
+    		x: 0,
+    		y: 0,
+    		color: 'red',
+    		r: 20,
+    		vx: 0,
+    		vy: 0,
+    		friction: 1,
+    		gravity: 0.3,
+    		bounce: -1
+    	}
+
+    	Object.assign(settings, opt);
+    	Object.keys(settings).map(x => {
+    		this[x] = settings[x];
+    	})
+    }
+
+    Ball.prototype.draw = function (ctx) {
+    	ctx.save();
+    	ctx.beginPath();
+    	ctx.fillStyle = this.color;
+    	ctx.arc(this.x, this.y, this.r, 0, Math.PI*2, false);
+    	ctx.fill();
+    	ctx.closePath();
+    	ctx.restore();
+    }
+
+    function getOffset(ele) {
+    	var offset  = {x: 0 , y: 0};
+    	while(ele){
+    		offset.x += ele.offsetLeft;
+    		offset.y += ele.offsetTop;
+    		ele = ele.offsetParent;
+    	}
+
+    	return offset
+    }
+
+    var canvasOffset = getOffset(canvas);
+    var ball = new Ball({x:20,y:50,targetX:w/2-20,targetY:50,easing:0.05,friction:0.9});
+
+
+    canvas.addEventListener('mousemove', function (e) {
+    	ball.targetX = e.pageX - canvasOffset.x;
+    	ball.targetY = e.pageY - canvasOffset.y;
+
+
+    });
+
+    ;(function start() {
+    	ctx.clearRect(0, 0, w, h);
+    	ctx.strokeRect(0, 0, w, h);
+
+    	ctx.save();
+    	ctx.beginPath();
+    	ctx.moveTo(ball.x, ball.y);
+    	ctx.lineTo(ball.targetX, ball.targetY);
+    	ctx.stroke();
+    	ctx.closePath();
+    	ctx.restore();
+
+    	
+    	ball.vx += (ball.targetX - ball.x) * ball.easing;
+    	ball.vy += (ball.targetY - ball.y) * ball.easing;
+    	ball.vx *= ball.friction;
+    	ball.vy *= ball.friction;
+    	ball.x += ball.vx;
+    	ball.y += ball.vy;
+    	ball.draw(ctx);
+    	window.requestAnimationFrame(start);
+    })();
+    </script>
+</body>
+
+</html>

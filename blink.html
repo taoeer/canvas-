@@ -1,0 +1,78 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <title>Document</title>
+</head>
+
+<body>
+    <canvas></canvas>
+    <script>
+    var canvas = document.getElementsByTagName("canvas")[0];
+    canvas.width = 800;
+    canvas.height = 500;
+    
+    var opacity = 0.05;
+
+    var c = canvas.getContext("2d");
+    c.fillStyle = '#000';
+    c.fillRect(0, 0, canvas.width, canvas.height);
+
+    function Blink() {}
+
+    Blink.prototype.reset = function() {
+
+    	this.x = Math.floor(Math.random() * canvas.width);
+    	this.y = Math.floor(Math.random() * canvas.height);
+    	this.r = Math.random()*10+5;
+
+        var colorValue = "123456789abcdef".split("");
+        var colorTemp = [];
+        for (var i = 0; i < 6; i++) {
+            colorTemp.push(colorValue[Math.floor(Math.random() * 16)]);
+        }
+        this.color = "#" + colorTemp.join("");
+    };
+
+    Blink.prototype.draw = function(c) {
+        c.save();
+
+        c.beginPath();
+        c.fillStyle = this.color;
+        c.arc(this.x, this.y, this.r, 0, 2 * Math.PI, false);
+        c.closePath();
+
+        c.fill();
+
+        c.restore();
+    };
+
+
+    function fillOpacity(c) {
+    	c.save();
+
+    	c.globalAlpha = opacity;
+    	c.fillStyle = "#000";
+
+    	c.fillRect(0,0,canvas.width,canvas.height);
+
+    	c.restore();
+    }
+
+    var blink = new Blink();
+
+    window.requestAnimationFrame(start);
+
+    function start() {
+        for (var i = 0; i < 5; i++) {
+        	blink.reset()
+        	blink.draw(c);
+        }
+        fillOpacity(c);
+        window.requestAnimationFrame(start);
+    }
+    </script>
+</body>
+
+</html>

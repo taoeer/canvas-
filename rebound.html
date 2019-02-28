@@ -1,0 +1,125 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <title>Title</title>
+</head>
+
+<body>
+    <div id="container">
+        <canvas id="canvas">Your Browser does not support Canvas, please upgrade</canvas>
+    </div>
+    <script>
+    var canvas = document.getElementById('canvas');
+    var ctx = canvas.getContext('2d');
+
+    var w = canvas.width = 500;
+    var h = canvas.height = 500;
+
+    function Ball(opt) {
+    	var settings = {
+    		x: 0,
+    		y: 0,
+    		color: "hsla("+ Math.random()*360 +",100%,50%,1)",
+    		r: 10,
+    		vx: 0,
+    		vy: 2,
+    		friction: 1,
+    		gravity: 0.3,
+    		bounce: -1
+    	}
+
+    	Object.assign(settings, opt);
+    	Object.keys(settings).map(x => {
+    		this[x] = settings[x];
+    	});
+
+    	this.x = 100;
+    	this.y = 0;
+    }
+
+    Ball.prototype.draw = function (ctx) {
+    	ctx.save();
+    	ctx.beginPath();
+    	ctx.fillStyle = this.color;
+    	ctx.arc(this.x, this.y, this.r, 0, Math.PI*2, false);
+    	ctx.fill();
+    	ctx.closePath();
+    	ctx.restore();
+    }
+
+    function Line(x1, y1, x2, y2){
+        this.x = 0;
+        this.y = 0;
+        this.x1 = (x1 === undefined) ? 0 : x1;
+        this.y1 = (y1 === undefined) ? 0 : y1;
+        this.x2 = (x2 === undefined) ? 0 : x2;
+        this.y2 = (y2 === undefined) ? 0 : y2;
+        this.rotation = 0;
+        this.scaleX = 1;
+        this.scaleY = 1;
+        this.lineWidth = 1;
+    }
+
+    Line.prototype.draw = function(context){
+        context.save();
+        context.translate(this.x, this.y);
+        context.rotate(this.rotation);
+        context.scale(this.scaleX, this.scaleY);
+        context.lineWidth = this.lineWidth;
+        context.beginPath();
+        context.moveTo(this.x1, this.y1);
+        context.lineTo(this.x2, this.y2);
+        context.closePath();
+        context.stroke();
+        context.restore();
+    }
+
+    var line = new Line(0, 0, 300, 0);
+    var bounce = -0.5;
+    var ball = new Ball();
+    line.x = 50;
+    line.y = 300;
+    line.rotation = 10 * Math.PI / 180; //角度旋转
+
+    ;(function start() {
+    	ctx.clearRect(0, 0, w, h);
+    	ctx.strokeRect(0, 0, w, h);
+        ball.vy += ball.gravity;
+
+        ball.x += ball.vx;
+        ball.y += ball.vy;
+
+        var dx = ball.x - line.x;
+        var dy = ball.y - line.y;
+
+        
+        var y2 = dy*Math.cos(line.rotation)-dx*Math.sin(line.rotation);
+
+        
+
+        //
+        if(y2 > -ball.r){
+            y2 = -ball.r;
+            vx1 = ball.vx * Math.cos(line.rotation) + ball.vy * Math.sin(line.rotation),
+            vy1 = ball.vy *  Math.cos(line.rotation)  - ball.vx * Math.sin(line.rotation);
+            vy1 *= bounce;
+            var x2 = dx*Math.cos(line.rotation)+dy*Math.sin(line.rotation);
+            x1 = x2 * Math.cos(line.rotation) - y2 * Math.sin(line.rotation);
+            y1 = y2 * Math.cos(line.rotation) + x2 * Math.sin(line.rotation);
+            ball.vx = vx1 * Math.cos(line.rotation) - vy1 * Math.sin(line.rotation);
+            ball.vy = vy1 * Math.cos(line.rotation) + vx1 * Math.sin(line.rotation);
+            ball.x = line.x + x1;
+            ball.y = line.y + y1;
+        }
+        //
+        
+
+        ball.draw(ctx);
+    	line.draw(ctx);
+    	window.requestAnimationFrame(start);
+    })();
+    </script>
+</body>
+
+</html>

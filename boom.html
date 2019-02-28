@@ -1,0 +1,142 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+	<meta charset="UTF-8">
+	<title>Document</title>
+	<style>
+		*{
+			padding: 0;
+			margin: 0;
+		}
+		html,body,canvas{
+			width: 100%;
+			height: 100%;
+		}
+	</style>
+</head>
+<body>
+	<canvas></canvas>
+	<script>
+	var canvas = document.getElementsByTagName("canvas")[0];
+	var ctx = canvas.getContext("2d");
+	var w = window.innerWidth;
+	var h = window.window.innerHeight;
+	canvas.width = w;
+	canvas.height = h;
+
+	ctx.fillStyle = "#000";
+	ctx.fillRect(0,0,canvas.width,canvas.height);
+
+	var ratio = 0;
+	var hu = 0;
+
+	var barWidth  = 800;
+	var barHeight = 10;
+	var barStartX = (canvas.width-barWidth)/2;
+	var barStartY = canvas.height/2-barHeight/2;
+
+	function Bar(opt) {
+		this.totalWidth = opt.totalWidth || 300;
+		this.ratio = opt.ratio || 0;
+		this.height = opt.height || 10;
+		this.startX = opt.startX || 0;
+		this.startY = opt.startY || 0;
+		this.hu = opt.hu || 0;
+		this.color = "hsla("+this.hu+",100%,50%,1)";
+		this.init(ctx);
+	}
+
+	Bar.prototype.init = function (ctx) {
+		ctx.save();
+
+		ctx.fillStyle = "hsla("+200+",100%,50%,0.2)";
+		ctx.fillRect(this.startX,this.startY,this.totalWidth,this.height);
+
+		ctx.restore()
+	}
+	Bar.prototype.update = function (ratio,hu) {
+		this.ratio = ratio;
+		this.hu = hu;
+		this.color = "hsla("+this.hu+",100%,50%,1)";
+	}
+
+	Bar.prototype.draw = function (ctx) {
+		ctx.save();
+
+		ctx.fillStyle = this.color;
+		ctx.fillRect(this.startX,this.startY,this.ratio*this.totalWidth,this.height);
+
+		ctx.restore()
+	}
+
+	
+
+	// var bar = new Bar({startX:barStartX,startY:barStartY,ratio:0,totalWidth:barWidth});
+
+
+	// (function start() {
+	// 	bar.draw(ctx);
+	// 	bar.update(ratio,hu);
+	// 	ratio += 0.002;
+	// 	hu = hu + 1;
+	// 	if(hu>360)hu = 0;
+	// 	ratio<=1 && window.requestAnimationFrame(start)
+	// })()
+
+
+	function Particle(opt) {
+		this.x = opt.x;
+		this.y = opt.y;
+		this.r = opt.r || Math.random()*10;
+		this.vx = Math.random()*100-50;
+		this.vy = Math.random()*-100;
+		this.g = 0.5;
+		this.color = "hsla("+Math.random()*360+",100%,50%,1)";
+		this.c = opt.ctx;
+	}
+
+	Particle.prototype.update = function () {
+		this.x += this.vx*this.g;
+		this.vy = this.vy+ this.g;
+		this.y += this.vy*this.g;
+	}
+
+	Particle.prototype.draw = function () {
+		this.c.save();
+		this.c.fillStyle = this.color;
+		this.c.beginPath();
+		this.c.arc(this.x,this.y,this.r,0,2*Math.PI,false);
+		this.c.closePath();
+		this.c.fill();
+		this.c.restore();
+	}
+
+	var particles = [];
+	var particlesNum = 500;
+	for(var i = 0 ; i < particlesNum ; i++ ){
+		particles.push(new Particle({x:500,y:500,ctx,ctx}))
+	}
+
+	setInterval(function () {
+		var x = Math.random()*canvas.width;
+		var y = Math.random()*canvas.height;
+		particles = [];
+		particlesNum = 500;
+		for(var i = 0 ; i < particlesNum ; i++ ){
+			particles.push(new Particle({x:x,y:y,ctx,ctx}))
+		}
+	},2500);
+		
+	(function start() {
+		ctx.fillStyle = "#000";
+		ctx.fillRect(0,0,canvas.width,canvas.height);
+		for(var i = 0 ; i < particles.length ; i++){
+			var  p = particles[i];
+			p.draw();
+			p.update();
+		}
+		window.requestAnimationFrame(start)
+	})()
+	</script>
+</body>
+</html>

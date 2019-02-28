@@ -1,0 +1,143 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <title>Document</title>
+</head>
+
+<body>
+    <canvas></canvas>
+    <script>
+    var canvas = document.getElementsByTagName("canvas")[0];
+    var ctx = canvas.getContext('2d');
+    var w = canvas.width = 1000;
+    var h = canvas.height = 800;
+    var offsetLeft = canvas.offsetLeft;
+    var offsetTop = canvas.offsetTop;
+
+    ctx.fillStyle = "#000";
+    ctx.fillRect(0, 0, w, h);
+
+    function Circle(opt) {
+        this.x = opt.x || Math.random() * 1000;
+        this.y = opt.y || Math.random() * 800;
+        this.r = opt.r || 10;
+        this.color = "red";
+    }
+
+    Circle.prototype.draw = function(ctx) {
+        ctx.save();
+        ctx.beginPath();
+        ctx.fillStyle = this.color;
+        ctx.arc(this.x, this.y, this.r, 0, 2 * Math.PI, false);
+        ctx.closePath();
+        ctx.fill();
+        ctx.restore();
+    }
+
+    function getPoint(e) {
+        return {
+            x: e.pageX - offsetLeft,
+            y: e.pageY - offsetTop
+        }
+    }
+
+    var circles = [];
+
+    function generateCircles(num) {
+        for (var i = 0; i < num; i++) {
+            var c = new Circle({});
+            circles.push(c);
+        }
+    }
+
+    function drawCircles() {
+        for (var i = 0; i < circles.length; i++) {
+            circles[i].draw(ctx);
+        }
+    }
+
+    function drawLine(opt) {
+        ctx.save();
+        ctx.beginPath();
+        ctx.strokeStyle = opt.color || "yellow";
+        for (var i = 0; i < circles.length; i++) {
+            var c = circles[i];
+            // if(i == 0)
+            // 	moveTo(c.x, c.y);
+            // else
+            ctx.lineTo(c.x, c.y);
+        }
+        ctx.closePath();
+        ctx.stroke();
+        ctx.restore();
+    }
+
+    function getDistance(x1, y1, x2, y2) {
+        if (x1 == x2) {
+            return Math.abs(y1 - y2);
+        } else if (y1 == y2) {
+            return Math.abs(x1 - x2);
+        } else {
+            return Math.sqrt(Math.pow(Math.abs(x1 - x2), 2) + Math.pow(Math.abs(y1 - y2), 2));
+        }
+    }
+
+    generateCircles(10);
+    drawLine({});
+    drawCircles()
+
+
+    window.addEventListener("mousemove", function(e) {
+        var point = getPoint(e);
+        for (var i = 0; i < circles.length; i++) {
+            var c = circles[i];
+            if (getDistance(point.x, point.y, c.x, c.y) < c.r) {
+                if (c.oldR != 10) c.oldR = c.r;
+                if (c.oldColor != "red") c.oldColor = c.color;
+                c.color = 'yellow';
+                c.r = 13;
+            } else {
+                if (c.oldR) c.r = c.oldR;
+                if (c.oldColor) c.color = c.oldColor;
+            }
+
+        }
+        
+        ctx.clearRect(0, 0, w, h);
+        ctx.fillRect(0, 0, w, h);
+        drawLine({});
+        drawCircles();
+    });
+
+    var pointCircle;
+    function drag(e) {
+    	var point = getPoint(e);
+    	pointCircle.x = point.x;
+    	pointCircle.y = point.y;
+    	ctx.clearRect(0, 0, w, h);
+    	ctx.fillRect(0, 0, w, h);
+    	drawLine({});
+    	drawCircles();
+    }
+
+    canvas.addEventListener("mousedown", function(e) {
+        var point = getPoint(e);
+        for (var i = 0; i < circles.length; i++) {
+            var c = circles[i];
+            if (getDistance(point.x, point.y, c.x, c.y) < c.r) {
+            	pointCircle = c;
+            	canvas.addEventListener("mousemove", drag)
+            } else {
+            }
+        }
+    });
+
+    canvas.addEventListener("mouseup", function () {
+    	canvas.removeEventListener("mousemove", drag)
+    })
+    </script>
+</body>
+
+</html>

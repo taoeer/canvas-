@@ -1,0 +1,73 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+	<meta charset="UTF-8">
+	<title>Document</title>
+	<style>
+	html, body {
+		height: 100%;
+	}
+	body {
+		margin: 0;
+	}
+	</style>
+</head>
+<body>
+	<canvas></canvas>
+	<script src="lib/ball.js"></script>
+	<script src="lib/util.js"></script>
+	<script>
+	var ball = new Ball();
+	var canvas = document.querySelector('canvas');
+	var ctx = canvas.getContext('2d');
+	var mouse = util.captureMouse(canvas);
+	var isDown = false;
+	var spring = 0.1;
+	var offset = {
+		x: 0,
+		y: 0
+	};
+
+	canvas.width = innerWidth;
+	canvas.height = innerHeight;
+
+	ball.draw(ctx);
+
+	canvas.addEventListener('mousedown', function () {
+		var dis = Math.sqrt(Math.pow(mouse.x - ball.x, 2) + Math.pow(mouse.y - ball.y, 2));
+		if (dis <= ball.r) {
+			isDown = true;
+			offset = {
+				x: mouse.x - ball.x,
+				y: mouse.y - ball.y
+			}
+		}
+
+	});
+	canvas.addEventListener('mouseup', function () {
+		isDown = false;
+	});
+
+	canvas.addEventListener('mousemove', function () {
+		if (isDown) {
+			ball.x = mouse.x - offset.x;
+			ball.y = mouse.y - offset.y;
+		}
+	});
+
+	(function loop() {
+		requestAnimationFrame(loop);
+		ctx.clearRect(0, 0, canvas.width, canvas.height);
+		if (!isDown) {
+			var dx = mouse.x - ball.x;
+			var dy = mouse.y - ball.y;
+			var vx = spring * dx;
+			var vy = spring * dy;
+			ball.x += vx;
+			ball.y += vy;
+		}
+		ball.draw(ctx);
+	})();
+	</script>
+</body>
+</html>

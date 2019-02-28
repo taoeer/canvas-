@@ -1,0 +1,80 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <title>Title</title>
+    <style>
+    html,
+    body {
+        padding: 0;
+        margin: 0;
+    }
+    </style>
+</head>
+
+<body>
+    <div id="container">
+        <canvas id="ID">Your Browser does not support Canvas, please upgrade</canvas>
+    </div>
+    <script>
+    var canvas = document.getElementById('ID');
+    var ctx = canvas.getContext('2d');
+
+    var w = canvas.width = innerWidth;
+    var h = canvas.height = innerHeight - 3;
+
+	var string = '0123456789qwertyuiopasdfghjklZxcvbnm{}<>?[]!@#$%^&*()_+'.split("");
+
+    var textSize = 20;
+
+    var columns = w / textSize;
+    var rows = h / textSize;
+    var opacityVal = 0.08;
+    var nowRow = 0;
+
+    var rowHeightArr = [];
+
+    for (var i = 0; i < columns; i++) {
+        rowHeightArr.push(0);
+    }
+
+
+    function fillText(ctx) {
+        ctx.save();
+        ctx.fillStyle = "green";
+        ctx.font = textSize + "px arial";
+        ctx.textAlign = "left";
+        ctx.textBaseline = "bottom";
+        for (var i = 0; i < columns; i++) {
+            ctx.fillText(string[Math.floor(Math.random() * string.length)], i * textSize, rowHeightArr[i] * textSize);
+        }
+        ctx.restore();
+
+        for (var k = 0; k < columns; k++) {
+            rowHeightArr[k]++;
+            if (rowHeightArr[k] > rows && Math.random() > 0.98) {
+                rowHeightArr[k] = 0;
+            }
+        }
+    }
+
+    function fillApacity() {
+        ctx.save();
+        ctx.fillStyle = "#000";
+        ctx.globalAlpha = opacityVal;
+        ctx.fillRect(0, 0, w, h);
+        ctx.restore();
+    }
+
+    ctx.fillStyle = "#000";
+    ctx.fillRect(0, 0, w, h);
+
+    (function start() {
+        fillApacity();
+        fillText(ctx)
+        window.requestAnimationFrame(start);
+    })()
+    </script>
+</body>
+
+</html>

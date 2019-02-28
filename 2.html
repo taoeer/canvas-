@@ -1,0 +1,66 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+	<meta charset="UTF-8">
+	<title>Document</title>
+	<style>
+	html, body {
+		height: 100%;
+	}
+	body {
+		margin: 0;
+	}
+	</style>
+</head>
+<body>
+	<canvas></canvas>
+	<script src="lib/util.js"></script>
+	<script>
+	var canvas = document.querySelector('canvas');
+	var ctx = canvas.getContext('2d');
+	var mousedown = false;
+	var brushSize = 25;
+	var brushDensity = 200;
+	var brushColor = '#000';
+	var mouse = util.captureMouse(canvas);
+
+	canvas.width = innerWidth;
+	canvas.height = innerHeight;
+
+	var imageData = ctx.getImageData(0, 0, canvas.width, canvas.height);
+	var pixels = imageData.data;
+
+	canvas.addEventListener('mousedown', function () {
+		brushColor = Math.random() * 0xffffff >> 0;
+		mousedown = true;
+	});
+
+	canvas.addEventListener('mouseup', function () {
+		mousedown = false;
+	});
+
+	canvas.addEventListener('mousemove', function (e) {
+		if (mousedown) {
+			draw(e);
+		}
+	});
+
+	function draw(e) {
+		for (var i = 0; i < brushDensity; i ++) {
+			var angle = Math.random() * Math.PI * 2;
+			var range = Math.random() * brushSize;
+			var xpos = (mouse.x + Math.sin(angle) * range) | 0;
+			var ypos = (mouse.y + Math.cos(angle) * range) | 0;
+			var offset = (xpos + ypos * imageData.width) * 4;
+			console.log(xpos, ypos);
+			pixels[offset] = brushColor >> 16 & 0xff;
+			pixels[offset + 1] = brushColor >> 8 & 0xff;
+			pixels[offset + 2] = brushColor & 0xff;
+			pixels[offset + 3] = 255;
+		}
+
+		ctx.putImageData(imageData, 0, 0);
+	}
+	</script>
+</body>
+</html>

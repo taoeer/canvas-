@@ -1,0 +1,36 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+	<meta charset="UTF-8">
+	<title>Document</title>
+	<style>
+	
+	</style>
+</head>
+<body>
+	<canvas></canvas>
+	<script src="lib/util.js"></script>
+	<script src="lib/arrow.js"></script>
+	<script src="lib/ball.js"></script>
+	<script>
+	var canvas = document.querySelector('canvas');
+	var ctx = canvas.getContext('2d');
+	var mouse = util.captureMouse(canvas);
+	canvas.width = innerWidth;
+	canvas.height = innerHeight;
+	
+	var range = 200;
+	var angle = 0;
+	var ball = new Ball();
+
+	ball.x = canvas.width / 2;
+	(function loop() {
+		requestAnimationFrame(loop);
+		ctx.clearRect(0, 0, canvas.width, canvas.height);
+		ball.y = Math.sin(angle) * range + canvas.height / 2;
+		ball.draw(ctx);
+		angle += 0.05;
+	})();
+	</script>
+</body>
+</html>
